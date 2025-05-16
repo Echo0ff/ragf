@@ -4,6 +4,12 @@ from huggingface_hub import snapshot_download
 # 1. 设置镜像源（国内加速）
 # os.environ["HF_ENDPOINT"] = "https://mirrors.tuna.tsinghua.edu.cn/hugging-face/"
 
+#deepseek模型
+
+
+#bge模型
+#https://github.com/FlagOpen/FlagEmbedding/blob/master/README_zh.md
+
 # 2. 定义模型列表（名称 + 下载路径）
 models_to_download = [
     {
@@ -11,8 +17,8 @@ models_to_download = [
         "local_dir": os.path.expanduser("./models/bge-m3"),
     },
     {
-        "repo_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",  # LLM 模型
-        "local_dir": os.path.expanduser("./models/DeepSeek-R1-1.5B"),
+        "repo_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",  # LLM 模型
+        "local_dir": os.path.expanduser("./models/DeepSeek-R1-Distill-Llama-70B"),
     }
 ]
 

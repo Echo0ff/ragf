@@ -10,7 +10,7 @@ services:
     container_name: ragflowplus-server
     ports:
       - ${SVR_HTTP_PORT}:9380
-      - 80:80
+      - 8099:80
       - 443:443
     volumes:
       - ./ragflow-logs:/ragflow/logs
@@ -79,51 +79,55 @@ services:
             - driver: nvidia
               capabilities: [gpu]
 
-  # # vllm 嵌入模型
-  # vllm-bge:
-  #   container_name: vllm-bge
-  #   image: vllm/vllm-openai:latest
-  #   ipc: host
-  #   volumes:
-  #     - ./models/bge-m3:/models
-  #   command: [
-  #     "--model", "/models",
-  #     "--served-model-name", "bge-m3",
-  #     "--dtype", "float16",
-  #     "--gpu-memory-utilization", "0.9",
-  #   ]
-  #   ports:
-  #     - "8000:8000"
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             capabilities: [gpu]
-  #   networks:
-  #     - ragflow
+  # vllm 嵌入模型
+  vllm-bge:
+    container_name: vllm-bge
+    image: vllm/vllm-openai:latest
+    ipc: host
+    volumes:
+      - ./models/bge-m3:/models
+    command: [
+      "--model", "/models",
+      "--served-model-name", "bge-m3",
+      "--dtype", "float16",
+      "--tensor-parallel-size", "1",
+      "--gpu-memory-utilization", "0.5",
+    ]
+    ports:
+      - "8098:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              # device_ids: ['7']
+              capabilities: [gpu]
+    networks:
+      - ragflow
 
-  # # vllm 语言模型
-  # vllm-deepseek:
-  #   container_name: vllm-deepseek
-  #   image: vllm/vllm-openai:latest
-  #   ipc: host
-  #   volumes:
-  #     - ./models/DeepSeek-R1-1.5B:/models
-  #   command: [
-  #     "--model", "/models",
-  #     "--served-model-name", "deepseek-r1",
-  #     "--dtype", "float16",
-  #     "--tensor-parallel-size", "1",
-  #     "--max-model-len", "4096"
-  #   ]
-  #   ports:
-  #     - "8001:8000"
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             capabilities: [gpu]
-  #   networks:
-  #     - ragflow
+  # vllm 语言模型
+  vllm-deepseek:
+    container_name: vllm-deepseek
+    image: vllm/vllm-openai:latest
+    ipc: host
+    volumes:
+      - ./models/DeepSeek-R1-Distill-Llama-70B:/models
+    command: [
+      "--model", "/models",
+      "--served-model-name", "deepseek-r1",
+      "--dtype", "float16",
+      "--tensor-parallel-size", "8",
+      "--max-model-len", "2048",
+      "--gpu-memory-utilization", "0.85"
+    ]
+    ports:
+      - "8097:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              # device_ids: ['1', '2', '3', '4', '5', '6', '7'] 
+              capabilities: [gpu]
+    networks:
+      - ragflow
